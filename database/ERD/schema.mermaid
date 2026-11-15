@@ -1,0 +1,116 @@
+erDiagram
+    users ||--o{ sales : "cashier_id (creates sale)"
+    users ||--o{ sales : "settled_by (settles credit)"
+    users ||--o{ attachments : "uploaded_by"
+    categories ||--o{ medicines : "category_id"
+    suppliers ||--o{ inventory_batches : "supplier_id"
+    medicines ||--o{ inventory_batches : "medicine_id"
+    customers ||--o{ sales : "customer_id"
+    sales ||--|{ sale_items : "sale_id"
+    inventory_batches ||--o{ sale_items : "batch_id"
+
+    users {
+        uuid id PK
+        uuid auth_id UK "links to auth.users"
+        varchar name "display name"
+        varchar email UK
+        varchar contact "optional phone"
+        varchar role "Manager, Cashier, Stock Handler"
+        boolean is_active
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    categories {
+        uuid id PK
+        varchar name UK
+        text description
+        boolean is_active
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    suppliers {
+        uuid id PK
+        varchar name
+        varchar contact_person
+        varchar phone
+        varchar email
+        text address
+        boolean is_active
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    medicines {
+        uuid id PK
+        uuid category_id FK
+        varchar name
+        varchar generic_name
+        varchar manufacturer
+        text description
+        numeric selling_price "CHECK >= 0"
+        integer reorder_level "CHECK >= 0"
+        boolean is_active
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    inventory_batches {
+        uuid id PK
+        uuid medicine_id FK
+        uuid supplier_id FK
+        varchar batch_number "UNIQUE per medicine"
+        date purchase_date
+        date expiry_date "CHECK >= purchase_date"
+        numeric purchase_price "CHECK >= 0"
+        integer qty_received "CHECK > 0"
+        integer qty_available "CHECK >= 0 and <= qty_received"
+        timestamptz created_at
+    }
+
+    customers {
+        uuid id PK
+        varchar name
+        varchar phone "indexed for search"
+        text address
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    sales {
+        uuid id PK
+        varchar sale_number UK "auto-generated server-side"
+        varchar idempotency_key UK "for safe checkout retry"
+        uuid cashier_id FK
+        uuid customer_id FK "required if CREDIT"
+        timestamptz sale_date
+        numeric total_amount "CHECK > 0"
+        varchar payment_method "CASH or CREDIT"
+        varchar payment_status "PAID or PENDING"
+        timestamptz settled_at "null until settled"
+        uuid settled_by FK "null until settled"
+        timestamptz created_at
+    }
+
+    sale_items {
+        uuid id PK
+        uuid sale_id FK
+        uuid batch_id FK
+        integer quantity "CHECK > 0"
+        numeric unit_price "snapshot at checkout"
+        numeric subtotal "quantity * unit_price"
+    }
+
+    attachments {
+        uuid id PK
+        varchar entity_type "medicine, batch, receipt, customer"
+        uuid entity_id
+        varchar storage_bucket "pharmacy-attachments"
+        varchar storage_path
+        varchar file_name
+        varchar file_type
+        integer file_size
+        uuid uploaded_by FK
+        timestamptz created_at
+    }
