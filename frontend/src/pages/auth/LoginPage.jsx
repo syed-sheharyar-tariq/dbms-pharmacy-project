@@ -124,8 +124,52 @@ export const LoginPage = () => {
           </button>
         </form>
 
+        {/* Quick Demo Credentials */}
+        {!isSignup && (
+          <div className="mt-5 pt-4 border-t border-slate-100">
+            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider text-center mb-2.5">
+              Instant Demo Logins
+            </p>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('manager@pharmacy.com');
+                  setPassword('PharmacyMaster2026!');
+                  setError('');
+                }}
+                className="py-1.5 px-2 bg-slate-50 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 border border-slate-200 rounded-lg text-[11px] font-medium text-slate-600 transition text-center"
+              >
+                Manager
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('cashier@pharmacy.com');
+                  setPassword('PharmacyMaster2026!');
+                  setError('');
+                }}
+                className="py-1.5 px-2 bg-slate-50 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 border border-slate-200 rounded-lg text-[11px] font-medium text-slate-600 transition text-center"
+              >
+                Cashier
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('stock@pharmacy.com');
+                  setPassword('PharmacyMaster2026!');
+                  setError('');
+                }}
+                className="py-1.5 px-2 bg-slate-50 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 border border-slate-200 rounded-lg text-[11px] font-medium text-slate-600 transition text-center"
+              >
+                Stock
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Toggle Signup/Login for demo */}
-        <div className="mt-6 pt-4 border-t border-slate-100 text-center">
+        <div className="mt-4 pt-3 border-t border-slate-100 text-center">
           <button
             type="button"
             onClick={() => {
@@ -136,7 +180,7 @@ export const LoginPage = () => {
           >
             {isSignup
               ? 'Already have credentials? Sign In'
-              : 'First time demo setup? Register first Manager account'}
+              : 'Need a custom account? Register New Staff'}
           </button>
         </div>
       </div>

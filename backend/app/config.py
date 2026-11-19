@@ -1,8 +1,12 @@
 import os
 from functools import lru_cache
+from pathlib import Path
 from typing import List
 from pydantic import computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+BACKEND_DIR = Path(__file__).resolve().parent.parent
+ROOT_ENV = BACKEND_DIR / ".env"
 
 
 class Settings(BaseSettings):
@@ -25,7 +29,7 @@ class Settings(BaseSettings):
     APP_TIMEZONE: str = "Asia/Karachi"
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=(str(ROOT_ENV), ".env"),
         env_file_encoding="utf-8",
         extra="ignore"
     )

@@ -49,6 +49,7 @@ BEGIN
     END IF;
 END $$;
 
+DROP TRIGGER IF EXISTS trg_users_updated_at ON public.users;
 CREATE TRIGGER trg_users_updated_at
 BEFORE UPDATE ON public.users
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
@@ -65,6 +66,7 @@ CREATE TABLE IF NOT EXISTS public.categories (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+DROP TRIGGER IF EXISTS trg_categories_updated_at ON public.categories;
 CREATE TRIGGER trg_categories_updated_at
 BEFORE UPDATE ON public.categories
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
@@ -84,6 +86,7 @@ CREATE TABLE IF NOT EXISTS public.suppliers (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+DROP TRIGGER IF EXISTS trg_suppliers_updated_at ON public.suppliers;
 CREATE TRIGGER trg_suppliers_updated_at
 BEFORE UPDATE ON public.suppliers
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
@@ -110,6 +113,7 @@ CREATE INDEX IF NOT EXISTS idx_medicines_name ON public.medicines(name);
 CREATE INDEX IF NOT EXISTS idx_medicines_generic_name ON public.medicines(generic_name);
 CREATE INDEX IF NOT EXISTS idx_medicines_is_active ON public.medicines(is_active);
 
+DROP TRIGGER IF EXISTS trg_medicines_updated_at ON public.medicines;
 CREATE TRIGGER trg_medicines_updated_at
 BEFORE UPDATE ON public.medicines
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
@@ -152,6 +156,7 @@ CREATE TABLE IF NOT EXISTS public.customers (
 CREATE INDEX IF NOT EXISTS idx_customers_phone ON public.customers(phone);
 CREATE INDEX IF NOT EXISTS idx_customers_name ON public.customers(name);
 
+DROP TRIGGER IF EXISTS trg_customers_updated_at ON public.customers;
 CREATE TRIGGER trg_customers_updated_at
 BEFORE UPDATE ON public.customers
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
@@ -245,12 +250,29 @@ ALTER TABLE public.attachments ENABLE ROW LEVEL SECURITY;
 
 -- Policy: Authenticated users can read pharmacy data via backend application role
 -- Backend service connects via connection string (service_role or authenticated with proper grants)
+DROP POLICY IF EXISTS "Allow authenticated read users" ON public.users;
 CREATE POLICY "Allow authenticated read users" ON public.users FOR SELECT TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "Allow authenticated read categories" ON public.categories;
 CREATE POLICY "Allow authenticated read categories" ON public.categories FOR SELECT TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "Allow authenticated read suppliers" ON public.suppliers;
 CREATE POLICY "Allow authenticated read suppliers" ON public.suppliers FOR SELECT TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "Allow authenticated read medicines" ON public.medicines;
 CREATE POLICY "Allow authenticated read medicines" ON public.medicines FOR SELECT TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "Allow authenticated read batches" ON public.inventory_batches;
 CREATE POLICY "Allow authenticated read batches" ON public.inventory_batches FOR SELECT TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "Allow authenticated read customers" ON public.customers;
 CREATE POLICY "Allow authenticated read customers" ON public.customers FOR SELECT TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "Allow authenticated read sales" ON public.sales;
 CREATE POLICY "Allow authenticated read sales" ON public.sales FOR SELECT TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "Allow authenticated read sale_items" ON public.sale_items;
 CREATE POLICY "Allow authenticated read sale_items" ON public.sale_items FOR SELECT TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "Allow authenticated read attachments" ON public.attachments;
 CREATE POLICY "Allow authenticated read attachments" ON public.attachments FOR SELECT TO authenticated USING (true);
