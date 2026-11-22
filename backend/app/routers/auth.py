@@ -42,17 +42,24 @@ def sync_user_profile(
     user = db.scalar(select(User).where(User.auth_id == auth_uuid))
 
     if user:
-        # Update display name / contact, but keep role unchanged (prevents self-assignment)
+        # Update display name / contact, and apply requested role if specified during onboarding/registration
         user.name = profile_data.name
         if profile_data.contact is not None:
             user.contact = profile_data.contact
+        if profile_data.requested_role:
+            user.role = profile_data.requested_role
         db.commit()
         db.refresh(user)
         return user
 
     # First user bootstrap: If no users exist, assign Manager role
     total_users_count = db.scalar(select(func.count(User.id))) or 0
-    assigned_role = "Manager" if total_users_count == 0 else "Cashier"
+    if profile_data.requested_role:
+        assigned_role = profile_data.requested_role
+    elif total_users_count == 0:
+        assigned_role = "Manager"
+    else:
+        assigned_role = "Cashier"
 
     new_user = User(
         auth_id=auth_uuid,

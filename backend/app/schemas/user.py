@@ -6,7 +6,7 @@ from pydantic import BaseModel, EmailStr, Field, ConfigDict
 class UserProfileSync(BaseModel):
     name: str = Field(..., min_length=2, max_length=150)
     contact: str | None = Field(None, max_length=40)
-    # Role cannot be self-assigned; defaults to Cashier or assigned by Manager
+    requested_role: str | None = Field(None, pattern="^(Manager|Cashier|Stock Handler)$")
 
 
 class UserCreate(BaseModel):

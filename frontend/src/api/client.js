@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { supabase } from './supabase';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
 
@@ -18,11 +19,20 @@ export const setTokenGetter = (fn) => {
 // Request interceptor to attach Bearer token
 apiClient.interceptors.request.use(
   async (config) => {
+    let token = null;
     if (getAuthToken) {
-      const token = await getAuthToken();
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+      token = await getAuthToken();
+    }
+    if (!token) {
+      try {
+        const { data } = await supabase.auth.getSession();
+        token = data?.session?.access_token || null;
+      } catch (e) {
+        token = null;
       }
+    }
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
@@ -33,12 +43,23 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    const errorMsg =
+    let errorMsg =
       error.response?.data?.detail ||
       error.response?.data?.message ||
       error.message ||
       'An unexpected error occurred';
-    return Promise.reject(new Error(typeof errorMsg === 'string' ? errorMsg : JSON.stringify(errorMsg)));
+
+    if (error.code === 'ERR_NETWORK') {
+      errorMsg = 'Cannot reach Pharmacy Backend API. Please verify the backend server is running and accessible.';
+    }
+
+    if (Array.isArray(errorMsg)) {
+      errorMsg = errorMsg.map((err) => (typeof err === 'object' && err.msg ? err.msg : JSON.stringify(err))).join(', ');
+    } else if (typeof errorMsg !== 'string') {
+      errorMsg = JSON.stringify(errorMsg);
+    }
+
+    return Promise.reject(new Error(errorMsg));
   }
 );
 
