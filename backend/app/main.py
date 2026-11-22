@@ -69,8 +69,10 @@ app.add_middleware(
 )
 
 
-# Health & Readiness Check Endpoint
+# Health & Readiness Check Endpoints
 @app.get("/health", tags=["System Health"])
+@app.get("/health/live", tags=["System Health"])
+@app.get("/health/ready", tags=["System Health"])
 def health_check():
     """Checks application and database readiness without exposing secrets."""
     db_connected = False
