@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { apiClient } from '../../api/client';
 import {
   Pill,
   ShieldCheck,
@@ -13,6 +14,7 @@ import {
   Building2,
   ShoppingBag,
   Package,
+  Activity,
 } from 'lucide-react';
 import heroBg from '../../assets/hero-bg.jpg';
 
@@ -30,6 +32,18 @@ export const LoginPage = () => {
   const [error, setError] = useState('');
   const [successInfo, setSuccessInfo] = useState('');
   const [loading, setLoading] = useState(false);
+  const [apiConnected, setApiConnected] = useState(null);
+
+  useEffect(() => {
+    // Probe backend health to ensure frontend is communicating with port 8001
+    apiClient
+      .get('/health')
+      .then(() => setApiConnected(true))
+      .catch((err) => {
+        console.warn('Backend probe warning:', err.message);
+        setApiConnected(false);
+      });
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -318,6 +332,22 @@ export const LoginPage = () => {
               ? 'Already registered? Return to Sign In'
               : 'Register New Staff Member (Manager, Cashier, or Stock)'}
           </button>
+        </div>
+
+        {/* Backend Connectivity Status Indicator */}
+        <div className="mt-3 text-center">
+          {apiConnected === true && (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-[11px] font-medium text-emerald-700 border border-emerald-200">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              Pharmacy API Connected (Port 8001)
+            </span>
+          )}
+          {apiConnected === false && (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 text-[11px] font-medium text-amber-800 border border-amber-200">
+              <AlertCircle className="w-3 h-3 text-amber-600" />
+              API Disconnected • Press Ctrl + F5 to reload fresh settings
+            </span>
+          )}
         </div>
       </div>
     </div>
